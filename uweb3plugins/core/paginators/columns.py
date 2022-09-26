@@ -8,7 +8,7 @@ class MyFormatter(string.Formatter):
         return (self.get_value(field_name, args, kwargs), field_name)
 
 
-class BaseCol:
+class Col:
     def __init__(self, name, attr, sortable=False):
         self.name = name
         self.attr = attr
@@ -18,7 +18,7 @@ class BaseCol:
         return Element("td", value=helpers.get_attr(item, self.attr))
 
 
-class LinkCol(BaseCol):
+class LinkCol(Col):
     """
     LinkCol("Test", attr="ID", href="/invoices/{client.name}")
     LinkCol("test2", attr="client.ID", href="/invoices/{title}")

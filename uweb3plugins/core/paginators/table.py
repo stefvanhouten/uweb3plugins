@@ -1,13 +1,12 @@
 from uweb3plugins.core.paginators.html_elements import Element
-from uweb3plugins.core.paginators.columns import BaseCol
-from uweb3plugins.core.paginators import helpers
+from uweb3plugins.core.paginators.columns import Col
 
 
 class MetaTable(type):
     def __new__(cls, name, bases, attrs):
         cls = super().__new__(cls, name, bases, attrs)
         cls._columns = {
-            name: obj for name, obj in attrs.items() if isinstance(obj, BaseCol)
+            name: obj for name, obj in attrs.items() if isinstance(obj, Col)
         }
         return cls
 
@@ -24,7 +23,7 @@ class BasicTable(metaclass=MetaTable):
                 Element(
                     "tr",
                     children=[
-                        Element("th", value=name) for name, col in self._columns.items()
+                        Element("th", value=col.name) for name, col in self._columns.items()
                     ],
                 )
             ],
