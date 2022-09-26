@@ -27,3 +27,22 @@ class Element:
             "element.html",
             element=self,
         )
+
+
+class TableHead(Element):
+    def __init__(
+        self, value, children: Iterable[Element] | None = None, sortable=False
+    ):
+        super().__init__(
+            name="th",
+            value=value,
+            children=children,
+        )
+        self.sortable = sortable
+
+    @property
+    def render(self):
+        return get_parser().Parse(
+            "sortable_head.html",
+            element=self,
+        )

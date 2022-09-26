@@ -1,0 +1,15 @@
+<th  {{ if [element:sortable] }}class="ascending"{{endif }}{{ if [element:attrs] }} [element:attrs|raw]{{ endif }}>
+  {{ if [element:sortable] }}
+    <a href="#"></a>
+    [element:value]
+  {{ else }}
+    {{ if [element:value] }}
+      [element:value]
+    {{ endif }}
+  {{ endif }}
+  {{ if [element:children] }}
+    {{ for child in [element:children] }}
+      [child:render]
+    {{ endfor }}
+  {{ endif }}
+</th>

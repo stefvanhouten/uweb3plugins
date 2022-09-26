@@ -1,4 +1,4 @@
-from uweb3plugins.core.paginators.html_elements import Element
+from uweb3plugins.core.paginators.html_elements import Element, TableHead
 from uweb3plugins.core.paginators.columns import Col
 
 
@@ -26,7 +26,8 @@ class BasicTable(metaclass=MetaTable):
                 Element(
                     "tr",
                     children=[
-                        Element("th", value=col.name) for col in self._get_columns()
+                        TableHead(value=col.name, sortable=col.sortable)
+                        for col in self._get_columns()
                     ],
                 )
             ],
