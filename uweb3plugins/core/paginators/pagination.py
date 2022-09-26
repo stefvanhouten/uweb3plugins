@@ -1,6 +1,6 @@
-from itertools import zip_longest
 import math
 import os
+from itertools import zip_longest
 from operator import itemgetter
 from typing import Callable, Iterable, List, Union
 
@@ -383,7 +383,7 @@ class OffsetPagination(Base):
         itemcount = next(value)
         self._pages = [Page(self.requested_page, list(value))]
         self.total_pages = int(math.ceil(float(itemcount) / self.page_size))
-        
+
     @property
     def render_table(self):
         """Render the complete table based on the supplied columns and the

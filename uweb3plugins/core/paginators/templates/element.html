@@ -1,0 +1,3 @@
+<[element:name]{{ if [element:attrs] }} [element:attrs|raw]{{ endif }}>{{ if [element:value] }}[element:value]{{ endif }}{{ if [element:children] }}{{ for child in [element:children] }}
+  [child:render]{{ endfor }}
+{{ endif }}</[element:name]>

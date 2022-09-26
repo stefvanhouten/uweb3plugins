@@ -7,6 +7,8 @@ from typing import Dict, Iterable, List
 
 from uweb3 import model
 from uweb3.libs.safestring import HTMLsafestring
+from uweb3.templateparser import Parser
+
 from uweb3plugins.core.paginators.pagination import (
     BasePagination,
     InvalidPageNumber,
@@ -14,7 +16,6 @@ from uweb3plugins.core.paginators.pagination import (
     PageNumberOutOfRange,
     SortablePagination,
 )
-from uweb3.templateparser import Parser
 
 
 class Items(model.Record):
