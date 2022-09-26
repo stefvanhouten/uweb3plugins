@@ -1,3 +1,4 @@
+from itertools import zip_longest
 import math
 import os
 from operator import itemgetter
@@ -347,7 +348,6 @@ class OffsetPagination(Base):
             # We cannot set self.page_number here because we need
             # to determine the total amount of pages first.
             self.requested_page = to_page_number(self.get_data.getfirst("page"))
-
         self.modelargs = modelargs
         self.method = method
         self._setup()
@@ -383,3 +383,14 @@ class OffsetPagination(Base):
         itemcount = next(value)
         self._pages = [Page(self.requested_page, list(value))]
         self.total_pages = int(math.ceil(float(itemcount) / self.page_size))
+        
+    @property
+    def render_table(self):
+        """Render the complete table based on the supplied columns and the
+        provided data."""
+        return self._parser.Parse(
+            "simple_table.html",
+            __paginator=self,
+            __ranges=self._determine_page_numbers(),
+            __query_url=self._query_url(),
+        )

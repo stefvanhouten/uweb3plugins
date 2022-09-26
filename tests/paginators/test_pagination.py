@@ -7,7 +7,7 @@ from typing import Dict, Iterable, List
 
 from uweb3 import model
 from uweb3.libs.safestring import HTMLsafestring
-from core.paginators.pagination import (
+from uweb3plugins.core.paginators.pagination import (
     BasePagination,
     InvalidPageNumber,
     OffsetPagination,
