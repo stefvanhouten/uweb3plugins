@@ -1,38 +1,6 @@
 from uweb3plugins.core.paginators.html_elements import Element
 from uweb3plugins.core.paginators.columns import BaseCol
-
-
-def _single_get(item, key):
-    try:
-        val = item[key]
-    except (KeyError, TypeError):
-        val = getattr(item, key)
-
-    try:
-        return val()
-    except TypeError:
-        return val
-
-
-def _recursive_getattr(item, keys):
-    try:
-        keys = keys.split(".")
-    except AttributeError:
-        pass
-
-    if item is None:
-        return None
-    if len(keys) == 1:
-        return _single_get(item, keys[0])
-    else:
-        return _recursive_getattr(_single_get(item, keys[0]), keys[1:])
-
-
-def _get_attr(item, attr):
-    if "." in attr:
-        return _recursive_getattr(item, attr)
-    else:
-        return _single_get(item, attr)
+from uweb3plugins.core.paginators import helpers
 
 
 class MetaTable(type):
@@ -69,10 +37,7 @@ class BasicTable(metaclass=MetaTable):
             children=[
                 Element(
                     "tr",
-                    children=[
-                        Element("td", value=_get_attr(item, col.attr))
-                        for name, col in self._columns.items()
-                    ],
+                    children=[col.render(item) for name, col in self._columns.items()],
                 )
                 for item in self.items
             ],
