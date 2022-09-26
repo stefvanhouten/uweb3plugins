@@ -12,8 +12,15 @@ class MetaTable(type):
 
 
 class BasicTable(metaclass=MetaTable):
-    def __init__(self, items):
+    def __init__(self, items, sort_by=None, sort_direction=None):
         self.items = items
+        self.sort_by = sort_by
+
+        if self.sort_by and not sort_direction:
+            # TODO: Warning?
+            self.sort_direction = "ASC"
+        else:
+            self.sort_direction = sort_direction
 
     def _get_columns(self):
         yield from [col for col in self._columns.values() if col.enabled]
@@ -26,7 +33,12 @@ class BasicTable(metaclass=MetaTable):
                 Element(
                     "tr",
                     children=[
-                        TableHead(value=col.name, sortable=col.sortable)
+                        TableHead(
+                            value=col.name,
+                            sortable=col.sortable,
+                            sort_by=self.sort_by,
+                            sort_direction=self.sort_direction,
+                        )
                         for col in self._get_columns()
                     ],
                 )

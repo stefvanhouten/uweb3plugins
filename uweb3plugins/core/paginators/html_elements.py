@@ -31,13 +31,20 @@ class Element:
 
 class TableHead(Element):
     def __init__(
-        self, value, children: Iterable[Element] | None = None, sortable=False
+        self,
+        value,
+        sort_by,
+        sort_direction,
+        children: Iterable[Element] | None = None,
+        sortable=False,
     ):
         super().__init__(
             name="th",
             value=value,
             children=children,
         )
+        self.sort_by = sort_by
+        self.sort_direction = sort_direction
         self.sortable = sortable
 
     @property
