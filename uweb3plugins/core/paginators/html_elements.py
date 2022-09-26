@@ -20,6 +20,6 @@ class Element:
     @property
     def render(self):
         return get_parser().Parse(
-            "/home/stef/devel/uweb3plugins/uweb3plugins/core/paginators/templates/element.html",
+            "element.html",
             element=self,
         )
