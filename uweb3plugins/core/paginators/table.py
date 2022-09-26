@@ -15,6 +15,9 @@ class BasicTable(metaclass=MetaTable):
     def __init__(self, items):
         self.items = items
 
+    def _get_columns(self):
+        yield from [col for col in self._columns.values() if col.enabled]
+
     @property
     def render_thead(self):
         return Element(
@@ -23,7 +26,7 @@ class BasicTable(metaclass=MetaTable):
                 Element(
                     "tr",
                     children=[
-                        Element("th", value=col.name) for name, col in self._columns.items()
+                        Element("th", value=col.name) for col in self._get_columns()
                     ],
                 )
             ],
@@ -36,7 +39,7 @@ class BasicTable(metaclass=MetaTable):
             children=[
                 Element(
                     "tr",
-                    children=[col.render(item) for name, col in self._columns.items()],
+                    children=[col.render(item) for col in self._get_columns()],
                 )
                 for item in self.items
             ],

@@ -10,7 +10,11 @@ def get_parser():
 
 class Element:
     def __init__(
-        self, name, value=None, attrs=None, children: Iterable["Element"] | None = None
+        self,
+        name,
+        value=None,
+        attrs=None,
+        children: Iterable["Element"] | None = None,
     ):
         self.name = name
         self.value = value

@@ -9,13 +9,16 @@ class MyFormatter(string.Formatter):
 
 
 class Col:
-    def __init__(self, name, attr, sortable=False):
+    def __init__(self, name, attr, sortable=False, enabled=True):
         self.name = name
         self.attr = attr
         self.sortable = sortable
+        self.enabled = enabled
 
     def render(self, item):
-        return Element("td", value=helpers.get_attr(item, self.attr))
+        return Element(
+            "td", value=helpers.get_attr(item, self.attr)
+        )
 
 
 class LinkCol(Col):
