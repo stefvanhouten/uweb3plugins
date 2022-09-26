@@ -144,12 +144,17 @@ class LinkCol(Col):
         self.href = href
 
     def render(self, item):
+        # Retrieve all fields that should be replaced in the href.
+        # When no {replacements} are found just use the href as is.
         field_names = [
             name
             for text, name, spec, conv in string.Formatter().parse(self.href)
             if name
         ]
-        url = MyFormatter().vformat(
+        # This is some fuckery that allows formatting replacements like
+        # {replacement.key}, normally this is not allowed because
+        # dot syntax is not supported in fstrings. This is a workaround.
+        formatted_url = MyFormatter().vformat(
             self.href, [], {name: helpers.get_attr(item, name) for name in field_names}
         )
         return Element(
@@ -158,7 +163,7 @@ class LinkCol(Col):
                 Element(
                     "a",
                     value=helpers.get_attr(item, self.attr),
-                    attrs=f'href="{url}"',
+                    attrs=f'href="{formatted_url}"',
                 )
             ],
         )
