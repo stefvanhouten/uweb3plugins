@@ -2,6 +2,7 @@ import configparser
 
 import uweb3
 
+
 class RestrictedDebuggingMixin(uweb3.DebuggingPageMaker):
     """This debugging pagemaker only shows debugging info to those on the white-list"""
 
