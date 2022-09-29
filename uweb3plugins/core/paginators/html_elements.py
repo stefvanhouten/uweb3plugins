@@ -33,6 +33,7 @@ class TableHead(Element):
     def __init__(
         self,
         value,
+        attr,
         sort_by,
         sort_direction,
         children: Iterable[Element] | None = None,
@@ -43,6 +44,7 @@ class TableHead(Element):
             value=value,
             children=children,
         )
+        self.attr = attr
         self.sort_by = sort_by
         self.sort_direction = sort_direction
         self.sortable = sortable
@@ -53,3 +55,12 @@ class TableHead(Element):
             "sortable_head.html",
             element=self,
         )
+
+
+class SearchField:
+    def __init__(self, search_url):
+        self.search_url = search_url
+
+    @property
+    def render(self):
+        return get_parser().Parse("search_field.html", element=self)

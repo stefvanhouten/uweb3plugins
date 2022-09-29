@@ -1,3 +1,6 @@
+import uweb3plugins.core.paginators.columns as columns
+
+
 def _single_get(item, key):
     try:
         val = item[key]
@@ -25,6 +28,9 @@ def _recursive_getattr(item, keys):
 
 
 def get_attr(item, attr):
+    if isinstance(attr, columns.ConstantAttr):
+        return attr.value
+
     if "." in attr:
         return _recursive_getattr(item, attr)
     else:

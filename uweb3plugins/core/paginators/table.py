@@ -1,4 +1,4 @@
-from uweb3plugins.core.paginators.html_elements import Element, TableHead
+from uweb3plugins.core.paginators.html_elements import Element, TableHead, SearchField
 from uweb3plugins.core.paginators.columns import Col
 
 
@@ -12,9 +12,10 @@ class MetaTable(type):
 
 
 class BasicTable(metaclass=MetaTable):
-    def __init__(self, items, sort_by=None, sort_direction=None):
+    def __init__(self, items, sort_by=None, sort_direction=None, search_url=None):
         self.items = items
         self.sort_by = sort_by
+        self.search_url = search_url
 
         if self.sort_by and not sort_direction:
             # TODO: Warning?
@@ -26,6 +27,13 @@ class BasicTable(metaclass=MetaTable):
         yield from [col for col in self._columns.values() if col.enabled]
 
     @property
+    def render_search(self):
+        if not self.search_url:
+            # TODO: Warning?
+            print("Using search without search_url is not supported")
+        return SearchField(search_url=self.search_url).render
+
+    @property
     def render_thead(self):
         return Element(
             "thead",
@@ -35,6 +43,7 @@ class BasicTable(metaclass=MetaTable):
                     children=[
                         TableHead(
                             value=col.name,
+                            attr=col.attr,
                             sortable=col.sortable,
                             sort_by=self.sort_by,
                             sort_direction=self.sort_direction,

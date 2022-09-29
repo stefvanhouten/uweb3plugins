@@ -9,64 +9,78 @@ class MyFormatter(string.Formatter):
 
 
 class Col:
-    def __init__(self, name, attr, sortable=False, enabled=True):
+    def __init__(
+        self,
+        name,
+        attr,
+        sortable=False,
+        enabled=True,
+        value_formatter=None,
+    ):
         """Base column class that can be used to render simple
-        columns in a table.
+                columns in a table.
+        u
+                Args:
+                    name (str): The title of the column, this will be displayed
+                        in the <th> element.
+                    attr (str): The attribute name of the value that should be
+                        retrieved from the item. When the item has nested children
+                        (because of lazyloading) or the item is a dict with nested
+                        keys the following syntax can be used to extract the value
+                        from a nested object: "foo.bar.baz". This will return the
+                        value of item["foo"]["bar"]["baz"].
+                    sortable (bool, optional): Determines if the column is sortable.
+                        Defaults to False.
+                    enabled (bool, optional): Determine wheter or not
+                        this column header and value should be displayed.
+                        Defaults to True.
+                    value_formatter (Callable, optional): A callable that is called
+                        right before the column value is renderd. The result of
+                        the value_formatter will be used as value in the element.
 
-        Args:
-            name (str): The title of the column, this will be displayed
-                in the <th> element.
-            attr (str): The attribute name of the value that should be
-                retrieved from the item. When the item has nested children
-                (because of lazyloading) or the item is a dict with nested
-                keys the following syntax can be used to extract the value
-                from a nested object: "foo.bar.baz". This will return the
-                value of item["foo"]["bar"]["baz"].
-            sortable (bool, optional): Determines if the column is sortable.
-                Defaults to False.
-            enabled (bool, optional): Determine wheter or not
-                this column header and value should be displayed.
-                Defaults to True.
+                Example usage:
+                    class Items:
+                        ID: int
+                        name: str
 
-        Example usage:
-            class Items:
-                ID: int
-                name: str
+                    class ItemsTable(BasicTable):
+                        id = Col("ID", attr="ID")
+                        name = Col("Name", attr="name")
 
-            class ItemsTable(BasicTable):
-                id = Col("ID", attr="ID")
-                name = Col("Name", attr="name")
+                    table = ItemsTable(items=[Items(ID=1, name="foo"), Items(ID=2, name="bar")])
 
-            table = ItemsTable(items=[Items(ID=1, name="foo"), Items(ID=2, name="bar")])
-
-            The rendered table will look like this:
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>foo</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>bar</td>
-                        </tr>
-                    </tbody>
-                </table>
+                    The rendered table will look like this:
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>foo</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>bar</td>
+                                </tr>
+                            </tbody>
+                        </table>
 
         """
         self.name = name
         self.attr = attr
         self.sortable = sortable
         self.enabled = enabled
+        self.value_formatter = value_formatter
 
     def render(self, item):
-        return Element("td", value=helpers.get_attr(item, self.attr))
+        value = helpers.get_attr(item, self.attr)
+        if self.value_formatter:
+            value = self.value_formatter(value)
+        return Element("td", value=value, attrs='class="test"')
 
 
 class LinkCol(Col):
@@ -157,13 +171,25 @@ class LinkCol(Col):
         formatted_url = MyFormatter().vformat(
             self.href, [], {name: helpers.get_attr(item, name) for name in field_names}
         )
+        value = helpers.get_attr(item, self.attr)
+        if self.value_formatter:
+            value = self.value_formatter(value)
+
         return Element(
             "td",
             children=[
                 Element(
                     "a",
-                    value=helpers.get_attr(item, self.attr),
+                    value=value,
                     attrs=f'href="{formatted_url}"',
                 )
             ],
         )
+
+
+class ConstantAttr:
+    def __init__(self, value):
+        """This class can be used to pass a constant value to a column.
+        This supresses the default behaviour of retrieving the value
+        from the item that is being iterated over."""
+        self.value = value
