@@ -1,0 +1,23 @@
+<nav class="pagination">
+  <ol>
+    {{ if [element:current_page] > 1 }}
+    <li><a href="?page=1[element:sort_url]">First</a></li>
+    {{ endif }}
+    {{ for p in [element:sliding_range] }}
+    <li><a href="?page=[p][element:sort_url]">[p]</a></li>
+    {{ endfor }}
+    {{ if [element:current_page] > 1 }}
+    <li><a
+        href="?page=[element:previous_page][element:sort_url]">Previous</a>
+    </li>
+    {{ endif }}
+    {{ if [element:current_page] < [element:total_pages] }} <li><a
+        href="?page=[element:next_page][element:sort_url]">Next</a></li>
+      {{ endif }}
+      {{ if [element:current_page] != [element:total_pages] and [element:total_pages] }}
+      <li><a
+          href="?page=[element:total_pages][element:sort_url]">Last</a>
+      </li>
+      {{ endif }}
+  </ol>
+</nav>

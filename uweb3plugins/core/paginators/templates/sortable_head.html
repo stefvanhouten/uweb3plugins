@@ -3,13 +3,13 @@
   {{ if [element:value] }}
     [element:value]
   {{ endif }}
-  <a href="?sort_by=[element:attr]&sort_direction=ASC"></a>
+  <a href="[element:url]"></a>
 {{ else }}
 <th {{ if [element:sortable] }}class="ascending"{{endif }}{{ if [element:attrs] }} [element:attrs|raw]{{ endif }}>
   {{ if [element:value] }}
     [element:value]
   {{ endif }}
-  <a href="?sort_by=[element:attr]&sort_direction=DESC"></a>
+  <a href="[element:url]"></a>
 {{ endif }}
   {{ if [element:children] }}
     {{ for child in [element:children] }}

@@ -1,5 +1,28 @@
-from uweb3plugins.core.paginators.html_elements import Element, TableHead, SearchField
+from __future__ import annotations
+
+import math
+from abc import abstractmethod
+
+from uweb3.libs.safestring import HTMLsafestring
 from uweb3plugins.core.paginators.columns import Col
+from uweb3plugins.core.paginators.html_elements import (
+    SearchField,
+    Table,
+    TableBody,
+    TableHeader,
+    TablePagination,
+)
+
+
+def get_current_page(get_request_data):
+    try:
+        return int(get_request_data.getfirst("page", 1))
+    except (ValueError, KeyError):
+        return 1
+
+
+def calc_total_pages(total_items: int, items_per_page: int):
+    return int(math.ceil(float(total_items) / items_per_page))
 
 
 class MetaTable(type):
@@ -12,10 +35,26 @@ class MetaTable(type):
 
 
 class BasicTable(metaclass=MetaTable):
-    def __init__(self, items, sort_by=None, sort_direction=None, search_url=None):
+    def __init__(
+        self,
+        items,
+        sort_by=None,
+        sort_direction=None,
+        search_url=None,
+        current_page=None,
+        total_pages=None,
+        renderer: None | "RenderCustomTable" = None,
+    ):
         self.items = items
         self.sort_by = sort_by
         self.search_url = search_url
+        self.current_page = current_page
+        self.total_pages = total_pages
+
+        if not renderer:
+            self.renderer = RenderSimpleTable()
+        else:
+            self.renderer = renderer
 
         if self.sort_by and not sort_direction:
             # TODO: Warning?
@@ -27,42 +66,55 @@ class BasicTable(metaclass=MetaTable):
         yield from [col for col in self._columns.values() if col.enabled]
 
     @property
-    def render_search(self):
-        if not self.search_url:
-            # TODO: Warning?
-            print("Using search without search_url is not supported")
-        return SearchField(search_url=self.search_url).render
+    def render(self):
+        return self.renderer.render(self)
 
-    @property
-    def render_thead(self):
-        return Element(
-            "thead",
-            children=[
-                Element(
-                    "tr",
-                    children=[
-                        TableHead(
-                            value=col.name,
-                            attr=col.attr,
-                            sortable=col.sortable,
-                            sort_by=self.sort_by,
-                            sort_direction=self.sort_direction,
-                        )
-                        for col in self._get_columns()
-                    ],
-                )
-            ],
-        ).render
 
-    @property
-    def render_body(self):
-        return Element(
-            "tbody",
-            children=[
-                Element(
-                    "tr",
-                    children=[col.render(item) for col in self._get_columns()],
-                )
-                for item in self.items
-            ],
-        ).render
+class TableComponents:
+    def __init__(self):
+        self._components = []
+
+    def add_component(self, component):
+        self._components.append(component)
+
+    def render(self, table: BasicTable):
+        return HTMLsafestring("").join(
+            component(table=table).render for component in self._components
+        )
+
+
+class RenderCustomTable:
+    @abstractmethod
+    def __init__(self):
+        self._renderer = TableComponents()
+
+    def render(self, table: BasicTable):
+        return self._renderer.render(table)
+
+
+class RenderCompleteTable(RenderCustomTable):
+    def __init__(self):
+        self._renderer = TableComponents()
+        self._renderer.add_component(SearchField)
+        self._renderer.add_component(
+            Table(
+                [
+                    TableHeader,
+                    TableBody,
+                ]
+            )
+        )
+        self._renderer.add_component(TablePagination)
+
+
+class RenderSimpleTable(RenderCustomTable):
+    def __init__(self):
+        self._renderer = TableComponents()
+        self._renderer.add_component(
+            Table(
+                [
+                    TableHeader,
+                    TableBody,
+                ]
+            )
+        )
