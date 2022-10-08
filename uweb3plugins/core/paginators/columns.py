@@ -80,7 +80,7 @@ class Col:
         value = helpers.get_attr(item, self.attr)
         if self.value_formatter:
             value = self.value_formatter(value)
-        return Element("td", value=value, attrs='class="test"')
+        return Element("td", value=value)
 
 
 class LinkCol(Col):
