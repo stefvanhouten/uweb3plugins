@@ -2,6 +2,7 @@ from typing import Optional
 
 import uweb3
 
+from typing import Type
 from uweb3.model import BaseRecord
 from uweb3.libs.sqltalk.mysql.connection import Connection
 from uweb3plugins.core.paginators import table
@@ -10,7 +11,7 @@ from uweb3plugins.core.paginators import table
 class SearchableTableMixin:
     @classmethod
     def IntergratedTable(
-        cls: BaseRecord,  # type: ignore
+        cls: Type[BaseRecord],  # type: ignore
         connection: Connection,
         request_data: uweb3.request.IndexedFieldStorage,
         page_size: int,
