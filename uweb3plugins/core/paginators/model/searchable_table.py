@@ -16,6 +16,7 @@ class SearchableTableMixin:
         page_size: int,
         conditions: Optional[list] = None,
         searchable: Optional[list | tuple] = None,
+        default_sort: Optional[list[tuple[str, bool]] | None] = None,
     ):
 
         order = request_data.getfirst("sort_by", None)
@@ -31,27 +32,39 @@ class SearchableTableMixin:
             conditions.append(
                 " OR ".join(
                     [
-                        "`{name}` LIKE '%{query}%'".format(
-                            name=name, query=connection.EscapeValues(query)[1:-1]
+                        "{name} LIKE {query}".format(
+                            name=connection.EscapeField(name),
+                            query=connection.EscapeValues(f"%{query}%"),
                         )
                         for name in searchable
                     ]
                 )
             )
+
         data = {
-            "order": [(order, order_asc)] if order else None,
             "offset": max(0, page_size * (page - 1)),
             "limit": page_size,
             "conditions": conditions,
             "yield_unlimited_total_first": True,
         }
 
-        results = list(
-            cls.List(
-                connection,
-                **{key: value for key, value in data.items() if value is not None},
+        if order:
+            data["order"] = [(order, order_asc)]
+        if not order and default_sort:
+            data["order"] = default_sort
+
+        try:
+            results: list[BaseRecord] = list(
+                cls.List(
+                    connection,
+                    **{key: value for key, value in data.items() if value is not None},
+                )
             )
-        )
+        except connection.OperationalError as exc:
+            if exc.args[0] == 1054:
+                # Unknown column, this should probably be logged.
+                pass
+            results = []
 
         try:
             total_items = int(results.pop(0))
