@@ -70,8 +70,8 @@ class TableHead(Element):
                 "query",
             ),
         )
-        self.url = f"?{url}&sort_by={col.name}"
-        self.attr = col.attr.lower() if col.attr else None
+        self.url = f"?{url}&sort_by={col.attr}"
+        self.attr = str(col.attr).lower() if col.attr else None
         self.sort_by = table.sort_by.lower() if table.sort_by else None
         self.sort_direction = (
             table.sort_direction.lower() if table.sort_direction else None
