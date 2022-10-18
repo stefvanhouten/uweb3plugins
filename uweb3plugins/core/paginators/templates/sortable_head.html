@@ -1,4 +1,4 @@
-{{ if [element:sortable] and [element:sort_direction] == 'DESC'}}
+{{ if [element:sortable] and [element:sort_by] == [element:attr] and [element:sort_direction] == 'desc'}}
 <th {{ if [element:sortable] }}class="descending"{{endif }}{{ if [element:attrs] }} [element:attrs|raw]{{ endif }}>
   {{ if [element:value] }}
     [element:value]

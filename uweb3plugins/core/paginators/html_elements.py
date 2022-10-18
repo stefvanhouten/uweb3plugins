@@ -15,13 +15,13 @@ def build_url(table, keys):
     for key in keys:
         default = None
         needle = key
-        
+
         if isinstance(key, tuple):
             needle = key[0]
             default = key[1]
 
         value = getattr(table, needle)
-        
+
         if value:
             query_args[needle] = value
         elif default:
@@ -67,14 +67,15 @@ class TableHead(Element):
             table,
             (
                 ("page", 1),
-                ("sort_by", col.attr),
                 "query",
             ),
         )
-        self.url = f"?{url}"
-        self.attr = col.attr
-        self.sort_by = table.sort_by
-        self.sort_direction = table.sort_direction
+        self.url = f"?{url}&sort_by={col.name}"
+        self.attr = col.attr.lower() if col.attr else None
+        self.sort_by = table.sort_by.lower() if table.sort_by else None
+        self.sort_direction = (
+            table.sort_direction.lower() if table.sort_direction else None
+        )
         self.sortable = col.sortable
 
     @property
