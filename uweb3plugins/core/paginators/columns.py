@@ -192,4 +192,7 @@ class ConstantAttr:
         """This class can be used to pass a constant value to a column.
         This supresses the default behaviour of retrieving the value
         from the item that is being iterated over."""
-        self.value = value
+        self.attr = value
+
+    def __repr__(self):
+        return str(self.attr)

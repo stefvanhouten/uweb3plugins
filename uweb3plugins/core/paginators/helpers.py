@@ -29,7 +29,7 @@ def _recursive_getattr(item, keys):
 
 def get_attr(item, attr):
     if isinstance(attr, columns.ConstantAttr):
-        return attr.value
+        return attr.attr
 
     if "." in attr:
         return _recursive_getattr(item, attr)
