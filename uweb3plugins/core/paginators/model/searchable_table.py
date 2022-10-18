@@ -3,7 +3,6 @@ from typing import Optional
 import uweb3
 
 from typing import Type
-from uweb3.model import BaseRecord
 from uweb3.libs.sqltalk.mysql.connection import Connection
 from uweb3plugins.core.paginators import table
 
@@ -11,7 +10,7 @@ from uweb3plugins.core.paginators import table
 class SearchableTableMixin:
     @classmethod
     def IntergratedTable(
-        cls: Type[BaseRecord],  # type: ignore
+        cls: Type[uweb3.model.BaseRecord],  # type: ignore
         connection: Connection,
         request_data: uweb3.request.IndexedFieldStorage,
         page_size: int,
@@ -33,10 +32,7 @@ class SearchableTableMixin:
             conditions.append(
                 " OR ".join(
                     [
-                        "{name} LIKE {query}".format(
-                            name=connection.EscapeField(name),
-                            query=connection.EscapeValues(f"%{query}%"),
-                        )
+                        f"{connection.EscapeField(name)} LIKE {connection.EscapeValues(f'%{query}%')}"
                         for name in searchable
                     ]
                 )
@@ -55,7 +51,7 @@ class SearchableTableMixin:
             data["order"] = default_sort
 
         try:
-            results: list[BaseRecord] = list(
+            results: list[uweb3.model.BaseRecord] = list(
                 cls.List(
                     connection,
                     **{key: value for key, value in data.items() if value is not None},
