@@ -21,7 +21,7 @@ class SearchableTableMixin:
         order = request_data.getfirst("sort_by", None)
         direction = request_data.getfirst("sort_direction", "ASC")
         order_asc = True if direction == "ASC" else False
-        current_page = table.get_current_page(request_data)
+        page = table.get_current_page(request_data)
         query = request_data.getfirst("query", None)
 
         if not conditions:
@@ -40,15 +40,17 @@ class SearchableTableMixin:
             )
         data = {
             "order": [(order, order_asc)] if order else None,
-            "offset": max(0, page_size * (current_page - 1)),
+            "offset": max(0, page_size * (page - 1)),
             "limit": page_size,
             "conditions": conditions,
             "yield_unlimited_total_first": True,
         }
 
-        results = cls.List(
-            connection,
-            **{key: value for key, value in data.items() if value is not None},
+        results = list(
+            cls.List(
+                connection,
+                **{key: value for key, value in data.items() if value is not None},
+            )
         )
 
         try:
@@ -56,4 +58,4 @@ class SearchableTableMixin:
         except (IndexError, ValueError):
             total_items = 0
 
-        return results, total_items, current_page
+        return results, total_items, page

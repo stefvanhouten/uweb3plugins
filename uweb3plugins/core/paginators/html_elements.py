@@ -1,11 +1,32 @@
 import os
 from typing import Iterable
 
+import urllib.parse
 from uweb3.templateparser import Parser
 
 
 def get_parser():
     return Parser(path=os.path.join(os.path.dirname(__file__), "templates"))
+
+
+def build_url(table, keys):
+    query_args = {}
+
+    for key in keys:
+        default = None
+        needle = key
+        
+        if isinstance(key, tuple):
+            needle = key[0]
+            default = key[1]
+
+        value = getattr(table, needle)
+        
+        if value:
+            query_args[needle] = value
+        elif default:
+            query_args[needle] = default
+    return urllib.parse.urlencode(query_args)
 
 
 class Element:
@@ -32,30 +53,29 @@ class Element:
 class TableHead(Element):
     def __init__(
         self,
-        value,
-        attr,
-        sort_by,
-        sort_direction,
-        current_page,
+        table,
+        col,
         children: Iterable[Element] | None = None,
-        sortable=False,
     ):
         super().__init__(
             name="th",
-            value=value,
+            value=col.name,
             children=children,
         )
-        if current_page:
-            self.url = (
-                f"?page={current_page}&sort_by={attr}&sort_direction={sort_direction}"
-            )
-        else:
-            self.url = f"?sort_by={attr}&sort_direction={sort_direction}"
 
-        self.attr = attr
-        self.sort_by = sort_by
-        self.sort_direction = sort_direction
-        self.sortable = sortable
+        url = build_url(
+            table,
+            (
+                ("page", 1),
+                ("sort_by", col.attr),
+                "query",
+            ),
+        )
+        self.url = f"?{url}"
+        self.attr = col.attr
+        self.sort_by = table.sort_by
+        self.sort_direction = table.sort_direction
+        self.sortable = col.sortable
 
     @property
     def render(self):
@@ -67,20 +87,22 @@ class TableHead(Element):
 
 class TablePagination:
     def __init__(self, table):
-        if table.sort_by and table.sort_direction:
-            self.sort_url = (
-                f"&sort_by={table.sort_by}&sort_direction={table.sort_direction}"
-            )
-        else:
-            self.sort_url = ""
+        self.sort_url = "&" + build_url(
+            table,
+            (
+                "sort_by",
+                "sort_direction",
+                "query",
+            ),
+        )
 
-        if table.current_page:
-            self.current_page = table.current_page
+        if table.page:
+            self.page = table.page
         else:
-            self.current_page = 1
+            self.page = 1
 
-        self.previous_page = max(1, self.current_page - 1)
-        self.next_page = self.current_page + 1
+        self.previous_page = max(1, self.page - 1)
+        self.next_page = self.page + 1
 
         if table.total_pages:
             self.total_pages = table.total_pages
@@ -94,7 +116,7 @@ class TablePagination:
 
     def _sliding_range(self):
         nav_end = min(self.previous_page + 4, self.total_pages + 1)
-        if self.total_pages - self.current_page < 2:
+        if self.total_pages - self.page < 2:
             return range(max(1, self.previous_page - 2), nav_end)
         return range(self.previous_page, nav_end)
 
@@ -120,17 +142,7 @@ class TableHeader:
         ).render
 
     def _get_ths(self) -> list:
-        return [
-            TableHead(
-                current_page=self.table.current_page,
-                value=col.name,
-                attr=col.attr,
-                sortable=col.sortable,
-                sort_by=self.table.sort_by,
-                sort_direction=self.table.sort_direction,
-            )
-            for col in self.table._get_columns()
-        ]
+        return [TableHead(self.table, col) for col in self.table._get_columns()]
 
 
 class TableBody:

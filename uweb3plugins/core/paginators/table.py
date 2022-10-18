@@ -41,15 +41,17 @@ class BasicTable(metaclass=MetaTable):
         sort_by=None,
         sort_direction=None,
         search_url=None,
-        current_page=None,
+        page=None,
         total_pages=None,
         renderer: None | "RenderCustomTable" = None,
+        query: None | str = None,
     ):
         self.items = items
         self.sort_by = sort_by
         self.search_url = search_url
-        self.current_page = current_page
+        self.page = page
         self.total_pages = total_pages
+        self.query = query
 
         if not renderer:
             self.renderer = RenderSimpleTable()

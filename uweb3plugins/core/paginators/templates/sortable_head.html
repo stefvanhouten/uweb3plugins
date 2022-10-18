@@ -1,15 +1,15 @@
-{{ if [element:sortable] and [element:sort_by] == [element:attr] and [element:sort_direction] == 'DESC'}}
+{{ if [element:sortable] and [element:sort_direction] == 'DESC'}}
 <th {{ if [element:sortable] }}class="descending"{{endif }}{{ if [element:attrs] }} [element:attrs|raw]{{ endif }}>
   {{ if [element:value] }}
     [element:value]
   {{ endif }}
-  <a href="[element:url]"></a>
+  <a href="[element:url]&sort_direction=ASC"></a>
 {{ else }}
 <th {{ if [element:sortable] }}class="ascending"{{endif }}{{ if [element:attrs] }} [element:attrs|raw]{{ endif }}>
   {{ if [element:value] }}
     [element:value]
   {{ endif }}
-  <a href="[element:url]"></a>
+  <a href="[element:url]&sort_direction=DESC"></a>
 {{ endif }}
   {{ if [element:children] }}
     {{ for child in [element:children] }}
